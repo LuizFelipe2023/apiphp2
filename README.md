@@ -5,17 +5,9 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 ## Tecnologias Utilizadas
 
 - **PHP:** Linguagem principal do backend.
-- **Bootstrap 5:** Framework CSS para estilização.
-- **JavaScript:** Manipulação dinâmica dos dados e interação com a API.
-- **API RESTful:** Para operações CRUD (Criar, Ler, Atualizar, Deletar) com produtos e pedidos.
+- **API RESTful:** Para operações CRUD (Criar, Ler, Atualizar, Deletar) com produtos e pedidos, e um sistema de login e autenticação de usuarios.
 
 ## Estrutura do Projeto
-
-### Frontend
-
-- **HTML:** Estrutura da página.
-- **CSS (Bootstrap 5):** Estilo da página.
-- **JavaScript:** Interação com modais e manipulação de formulários.
 
 ### Backend
 
