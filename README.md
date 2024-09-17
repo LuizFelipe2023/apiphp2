@@ -131,7 +131,7 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 
 ### Para Instalar e Executar a aplicação
 
-1 - **Baixe o repositorio**
-2 - **No seu console, rode o Composer Install**
-3 - **Instale essas bibliotecas aqui: composer require firebase/php-jwt e essa aqui composer require vlucas/phpdotenv. Com elas duas vcs poderam usar o JWT E .env no php.**
-4 - **Para rodar aplicação, coloque na pasta public e rode esse comando: php -S localhost:8000**
+- **Baixe o repositorio**
+- **No seu console, rode o Composer Install**
+- **Instale essas bibliotecas aqui: composer require firebase/php-jwt e essa aqui composer require vlucas/phpdotenv. Com elas duas vcs poderam usar o JWT E .env no php.**
+- **Para rodar aplicação, coloque na pasta public e rode esse comando: php -S localhost:8000**
