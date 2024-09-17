@@ -129,5 +129,10 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
   - Confirmação da nova senha
 - **Ação:** A Api faz uma solicitação POST pedindo do usuario o token de redifinição enviado via email, sendo válido autoriza a troca de senha, o usuario digita a senha nova e depois redigita pra confirmar a senha nova. 
 
+### Para Instalar e Executar a aplicação
 
+1 - Baixe o repositorio
+2 - No seu console, rode o Composer Install
+3 - Instale essas bibliotecas aqui: composer require firebase/php-jwt e essa aqui composer require vlucas/phpdotenv. Com elas duas vcs poderam usar o JWT E .env no php.
+4 - Para rodar aplicação, coloque na pasta public e rode esse comando: php -S localhost:8000
 
