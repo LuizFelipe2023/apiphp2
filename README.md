@@ -116,7 +116,7 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 - **Campos Requeridos:**
   - Email
   - Nova Senha
-- **Ação:** Envia uma requisição POST para a API para verificar o a existencia do usuario e liberar o redifinição de senha se o usuario existir.
+- **Ação:** Envia uma requisição POST para a API para verificar o a existencia do usuario, se ele existir envia um token de redifinição de email por email ao usuário.
   
   ### Redefinição de Senha
 
@@ -127,7 +127,7 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
   - Token
   - Nova Senha
   - Confirmação da nova senha
-- **Ação:** A Api faz uma solicitação POST pedindo do usuario o token de redifinição enviada via email, sendo valido autoriza a troca de senha, o usuario digita a senha nova e depois redigita pra confirmar a senha nova. 
+- **Ação:** A Api faz uma solicitação POST pedindo do usuario o token de redifinição enviado via email, sendo válido autoriza a troca de senha, o usuario digita a senha nova e depois redigita pra confirmar a senha nova. 
 
 
 
