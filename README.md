@@ -1,6 +1,6 @@
 # Projeto de Gestão de Produtos e Pedidos
 
-Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP, Bootstrap 5 e uma API RESTful. O sistema permite adicionar, editar e apagar produtos e pedidos, além de listar todos os produtos e pedidos cadastrados.
+Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP, Bootstrap 5 e uma API RESTful. O sistema permite adicionar, editar e apagar produtos e pedidos, além de listar todos os produtos e pedidos cadastrados. Também inclui funcionalidades de autenticação e gerenciamento de usuários.
 
 ## Tecnologias Utilizadas
 
@@ -24,34 +24,106 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 
 ## Funcionalidades
 
-1. **Listagem de Produtos:**
-   - Exibe uma tabela com todos os produtos cadastrados, mostrando nome, valor e categoria.
-   - Botões de ação para editar e apagar cada produto.
+### Listagem de Produtos
 
-2. **Adicionar Produto:**
-   - Modal para inserir um novo produto com campos para nome, valor e categoria.
-   - Envia uma requisição POST para a API para adicionar o produto.
+- **Descrição:** Exibe uma tabela com todos os produtos cadastrados, mostrando nome, valor e categoria.
+- **Ações:**
+  - **Editar:** Abre um modal para editar as informações do produto.
+  - **Excluir:** Abre um modal de confirmação para excluir o produto.
 
-3. **Editar Produto:**
-   - Modal para editar as informações de um produto existente.
-   - Atualiza os dados do produto via requisição POST para a API.
+### Adicionar Produto
 
-4. **Excluir Produto:**
-   - Modal de confirmação para excluir um produto.
-   - Envia uma requisição POST para a API para remover o produto.
+- **Descrição:** Modal para inserir um novo produto.
+- **Campos:**
+  - Nome
+  - Valor
+  - Categoria
+- **Ação:** Envia uma requisição POST para a API para adicionar o produto.
 
-5. **Listagem de Pedidos:**
-   - Exibe uma tabela com todos os pedidos cadastrados, mostrando ID, nome do cliente, data e status do pedido.
-   - Botões de ação para editar e apagar cada pedido.
+### Editar Produto
 
-6. **Adicionar Pedido:**
-   - Modal para inserir um novo pedido com campos para nome do cliente, data e status.
-   - Envia uma requisição POST para a API para adicionar o pedido.
+- **Descrição:** Modal para editar as informações de um produto existente.
+- **Campos:**
+  - Nome
+  - Valor
+  - Categoria
+- **Ação:** Atualiza os dados do produto via requisição POST para a API.
 
-7. **Editar Pedido:**
-   - Modal para editar as informações de um pedido existente.
-   - Atualiza os dados do pedido via requisição POST para a API.
+### Excluir Produto
 
-8. **Excluir Pedido:**
-   - Modal de confirmação para excluir um pedido.
-   - Envia uma requisição POST para a API para remover o pedido.
+- **Descrição:** Modal de confirmação para excluir um produto.
+- **Ação:** Envia uma requisição DELETE para a API para remover o produto.
+
+### Listagem de Pedidos
+
+- **Descrição:** Exibe uma tabela com todos os pedidos cadastrados, mostrando ID, nome do cliente, data e status do pedido.
+- **Ações:**
+  - **Editar:** Abre um modal para editar as informações do pedido.
+  - **Excluir:** Abre um modal de confirmação para excluir o pedido.
+
+### Adicionar Pedido
+
+- **Descrição:** Modal para inserir um novo pedido.
+- **Campos:**
+  - Nome do Cliente
+  - Data
+  - Status
+- **Ação:** Envia uma requisição POST para a API para adicionar o pedido.
+
+### Editar Pedido
+
+- **Descrição:** Modal para editar as informações de um pedido existente.
+- **Campos:**
+  - Nome do Cliente
+  - Data
+  - Status
+- **Ação:** Atualiza os dados do pedido via requisição POST para a API.
+
+### Excluir Pedido
+
+- **Descrição:** Modal de confirmação para excluir um pedido.
+- **Ação:** Envia uma requisição DELETE para a API para remover o pedido.
+
+## Autenticação e Gerenciamento de Usuários
+
+### Criar Usuário
+
+- **Descrição:** Endpoint para criação de novos usuários.
+- **Método:** POST
+- **Rota:** `/usuarios`
+- **Campos Requeridos:**
+  - Nome
+  - Email
+  - Senha
+  - CPF
+  - Endereço
+- **Ação:** Envia uma requisição POST para a API para criar um novo usuário.
+
+### Login
+
+- **Descrição:** Endpoint para autenticação de usuários.
+- **Método:** POST
+- **Rota:** `/login`
+- **Campos Requeridos:**
+  - Email
+  - Senha
+- **Ação:** Envia uma requisição POST para a API para autenticar o usuário e iniciar a sessão. Retorna um token de autenticação se bem-sucedido.
+
+### Logout
+
+- **Descrição:** Endpoint para encerrar a sessão do usuário.
+- **Método:** POST
+- **Rota:** `/logout`
+- **Ação:** Envia uma requisição POST para a API para destruir a sessão do usuário e finalizar o login.
+
+### Redefinição de Senha
+
+- **Descrição:** Endpoint para redefinição de senha do usuário.
+- **Método:** POST
+- **Rota:** `/reset-password`
+- **Campos Requeridos:**
+  - Email
+  - Nova Senha
+- **Ação:** Envia uma requisição POST para a API para atualizar a senha do usuário com base no email fornecido. 
+
+
