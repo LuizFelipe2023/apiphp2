@@ -1,6 +1,6 @@
 # Projeto de Gestão de Produtos e Pedidos
 
-Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP, Bootstrap 5 e uma API RESTful. O sistema permite adicionar, editar e apagar produtos e pedidos, além de listar todos os produtos e pedidos cadastrados. Também inclui funcionalidades de autenticação e gerenciamento de usuários.
+Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP e uma API RESTful. O sistema permite adicionar, editar e apagar produtos e pedidos, além de listar todos os produtos e pedidos cadastrados. Também inclui funcionalidades de autenticação e gerenciamento de usuários.
 
 ## Tecnologias Utilizadas
 
@@ -133,5 +133,6 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 
 - **Baixe o repositorio**
 - **No seu console, rode o Composer Install**
-- **Instale essas bibliotecas aqui: composer require firebase/php-jwt e essa aqui composer require vlucas/phpdotenv. Com elas duas vcs poderam usar o JWT E .env no php.**
-- **Para rodar aplicação, coloque na pasta public e rode esse comando: php -S localhost:8000**
+- **Instale essas bibliotecas aqui: composer require firebase/php-jwt e essa aqui composer require vlucas/phpdotenv. Com elas duas vcs poderam usar o JWT e o .env no php.**
+- **Para rodar aplicação, coloque na pasta public onde estar o arquivo index.php e rode esse comando: php -S localhost:8000**
+- **Pronto você agora pode testar no POSTMAN ou INSOMMIA**
