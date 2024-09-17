@@ -124,9 +124,10 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 - **Método:** POST
 - **Rota:** `/redefinir-senha`
 - **Campos Requeridos:**
-  - Email
+  - Token
   - Nova Senha
-- **Ação:** Envia uma requisição POST para a API para atualizar a senha do usuario. 
+  - Confirmação da nova senha
+- **Ação:** A Api faz uma solicitação POST pedindo do usuario o token de redifinição enviada via email, sendo valido autoriza a troca de senha, o usuario digita a senha nova e depois redigita pra confirmar a senha nova. 
 
 
 
