@@ -108,14 +108,25 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 - **Rota:** `/logout`
 - **Ação:** Envia uma requisição POST para a API para destruir a sessão do usuário e finalizar o login.
 
-### Redefinição de Senha
+### Solicitação de Redefinição de Senha
 
 - **Descrição:** Endpoint para redefinição de senha do usuário.
 - **Método:** POST
-- **Rota:** `/reset-password`
+- **Rota:** `/solicitar-redefinicao-senha`
 - **Campos Requeridos:**
   - Email
   - Nova Senha
-- **Ação:** Envia uma requisição POST para a API para atualizar a senha do usuário com base no email fornecido. 
+- **Ação:** Envia uma requisição POST para a API para verificar o a existencia do usuario e liberar o redifinição de senha se o usuario existir.
+  
+  ### Redefinição de Senha
+
+- **Descrição:** Endpoint para realizar a troca de senha.
+- **Método:** POST
+- **Rota:** `/redefinir-senha`
+- **Campos Requeridos:**
+  - Email
+  - Nova Senha
+- **Ação:** Envia uma requisição POST para a API para atualizar a senha do usuario. 
+
 
 
