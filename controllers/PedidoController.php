@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../models/Pedido.php';
 require_once __DIR__ . '/../config/Database.php';
 
@@ -18,15 +17,12 @@ class PedidoController
     {
         try {
             $result = $this->pedido->getAll();
-            return [
-                "status" => "success",
-                "data" => $result
-            ];
+            echo json_encode($result);
         } catch (Exception $e) {
-            return [
+            echo json_encode([
                 "status" => "error",
-                "message" => "Erro ao buscar pedidos: " . $e->getMessage()
-            ];
+                "message" => "Não foi possível carregar a lista de pedidos. Por favor, tente novamente mais tarde."
+            ]);
         }
     }
 
@@ -35,21 +31,18 @@ class PedidoController
         try {
             $result = $this->pedido->getById($id);
             if (is_array($result)) {
-                return [
-                    "status" => "success",
-                    "data" => $result
-                ];
+                echo json_encode($result);
             } else {
-                return [
+                echo json_encode([
                     "status" => "error",
-                    "message" => $result
-                ];
+                    "message" => "Pedido não encontrado. Verifique o ID e tente novamente."
+                ]);
             }
         } catch (Exception $e) {
-            return [
+            echo json_encode([
                 "status" => "error",
-                "message" => "Erro ao buscar o pedido: " . $e->getMessage()
-            ];
+                "message" => "Não foi possível encontrar o pedido solicitado. Por favor, tente novamente mais tarde."
+            ]);
         }
     }
 
@@ -67,18 +60,24 @@ class PedidoController
             $produtos = $data['produtos'] ?? [];
 
             if (!$dataPedido || !$nomeCliente || !$cpfCliente || !$enderecoCliente || empty($produtos)) {
-                throw new InvalidArgumentException('Os campos nome_cliente, cpf_cliente, endereco_cliente, data_pedido e produtos são obrigatórios.');
+                throw new InvalidArgumentException('Todos os campos são obrigatórios: data_pedido, nome_cliente, cpf_cliente, endereco_cliente e produtos.');
             }
 
             $this->pedido->setDetails($nomeCliente, $cpfCliente, $enderecoCliente, $dataPedido);
             $this->pedido->setProdutos($produtos);
 
-            return $this->pedido->criarPedido();
-        } catch (Exception $e) {
-            return [
+            $result = $this->pedido->criarPedido();
+            echo json_encode($result);
+        } catch (InvalidArgumentException $e) {
+            echo json_encode([
                 "status" => "error",
-                "message" => "Erro ao criar o pedido: " . $e->getMessage()
-            ];
+                "message" => "Por favor, preencha todos os campos obrigatórios corretamente. " . $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível criar o pedido. Verifique os dados e tente novamente."
+            ]);
         }
     }
 
@@ -96,18 +95,24 @@ class PedidoController
             $produtos = $data['produtos'] ?? [];
 
             if (!$dataPedido || !$nomeCliente || !$cpfCliente || !$enderecoCliente || empty($produtos)) {
-                throw new InvalidArgumentException('Os campos nome_cliente, cpf_cliente, endereco_cliente, data_pedido e produtos são obrigatórios.');
+                throw new InvalidArgumentException('Todos os campos são obrigatórios: data_pedido, nome_cliente, cpf_cliente, endereco_cliente e produtos.');
             }
 
             $this->pedido->setDetails($nomeCliente, $cpfCliente, $enderecoCliente, $dataPedido);
             $this->pedido->setProdutos($produtos);
 
-            return $this->pedido->atualizarPedido($pedidoId);
-        } catch (Exception $e) {
-            return [
+            $result = $this->pedido->atualizarPedido($pedidoId);
+            echo json_encode($result);
+        } catch (InvalidArgumentException $e) {
+            echo json_encode([
                 "status" => "error",
-                "message" => "Erro ao atualizar o pedido: " . $e->getMessage()
-            ];
+                "message" => "Os dados fornecidos estão incompletos. " . $e->getMessage()
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível atualizar o pedido. Verifique os dados e tente novamente."
+            ]);
         }
     }
 
@@ -115,12 +120,12 @@ class PedidoController
     {
         try {
             $result = $this->pedido->deletePedido($id);
-            return $result;
+            echo json_encode($result);
         } catch (Exception $e) {
-            return [
+            echo json_encode([
                 "status" => "error",
-                "message" => "Erro ao apagar o pedido: " . $e->getMessage()
-            ];
+                "message" => "Não foi possível deletar o pedido. Por favor, tente novamente mais tarde."
+            ]);
         }
     }
 }

@@ -1,52 +1,91 @@
 <?php
-
 require_once __DIR__ . '/../models/Produto.php';
 require_once __DIR__ . '/../config/Database.php';
 
 class ProdutoController
 {
     private $produto;
-    private $conn;
 
     public function __construct($conn)
     {
-        $this->conn = $conn;
-        $this->produto = new Produto($this->conn);
+        $this->produto = new Produto($conn);
     }
 
     public function getAllProducts()
     {
-        $result = $this->produto->getAllProducts();
-        return $result;
+        try {
+            $result = $this->produto->getAllProducts();
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível carregar a lista de produtos. Por favor, tente novamente mais tarde."
+            ]);
+        }
     }
 
     public function getProductById($id)
     {
-        $result = $this->produto->getProductById($id);
-        return $result;
+        try {
+            $result = $this->produto->getProductById($id);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Produto não encontrado. Verifique o ID e tente novamente."
+            ]);
+        }
     }
 
     public function insertProduct($nome, $valor, $categoria)
     {
-        $result = $this->produto->insertProduct($nome, $valor, $categoria);
-        return $result;
+        try {
+            $result = $this->produto->insertProduct($nome, $valor, $categoria);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível inserir o produto. Verifique os dados e tente novamente."
+            ]);
+        }
     }
 
     public function insertProducts(array $produtos)
     {
-        $result = $this->produto->insertProducts($produtos);
-        return $result;
+        try {
+            $result = $this->produto->insertProducts($produtos);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível inserir os produtos. Verifique os dados e tente novamente."
+            ]);
+        }
     }
 
     public function updateProduct($id, $nome, $valor, $categoria)
     {
-        $result = $this->produto->updateProduct($id, $nome, $valor, $categoria);
-        return $result;
+        try {
+            $result = $this->produto->updateProduct($id, $nome, $valor, $categoria);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível atualizar o produto. Verifique os dados e tente novamente."
+            ]);
+        }
     }
 
     public function deleteProduct($id)
     {
-        $result = $this->produto->deleteProduct($id);
-        return $result;
+        try {
+            $result = $this->produto->deleteProduct($id);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível deletar o produto. Por favor, tente novamente mais tarde."
+            ]);
+        }
     }
 }
