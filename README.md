@@ -47,6 +47,22 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos utilizando
 - **Descrição:** Modal de confirmação para excluir um produto.
 - **Ação:** Envia uma requisição DELETE para a API para remover o produto.
 
+### Ver Todos os Produtos
+
+- **Descrição:** Exibe uma lista com todos os produtos cadastrados.
+- **Método:** GET
+- **Rota:** `/produtos`
+- **Ação:** Envia uma requisição GET para a API para recuperar todos os produtos.
+
+### Ver Produto Específico
+
+- **Descrição:** Exibe os detalhes de um produto específico.
+- **Método:** GET
+- **Rota:** `/produtos/{id}`
+- **Campos Requeridos:**
+  - ID do produto
+- **Ação:** Envia uma requisição GET para a API para recuperar os detalhes do produto pelo ID.
+
 ### Listagem de Pedidos
 
 - **Descrição:** Exibe uma tabela com todos os pedidos cadastrados, mostrando ID, nome do cliente, data e status do pedido.
@@ -76,6 +92,22 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos utilizando
 
 - **Descrição:** Modal de confirmação para excluir um pedido.
 - **Ação:** Envia uma requisição DELETE para a API para remover o pedido.
+
+### Ver Todos os Pedidos
+
+- **Descrição:** Exibe uma lista com todos os pedidos cadastrados.
+- **Método:** GET
+- **Rota:** `/pedidos`
+- **Ação:** Envia uma requisição GET para a API para recuperar todos os pedidos.
+
+### Ver Pedido Específico
+
+- **Descrição:** Exibe os detalhes de um pedido específico.
+- **Método:** GET
+- **Rota:** `/pedidos/{id}`
+- **Campos Requeridos:**
+  - ID do pedido
+- **Ação:** Envia uma requisição GET para a API para recuperar os detalhes do pedido pelo ID.
 
 ## Autenticação e Gerenciamento de Usuários
 
@@ -140,4 +172,3 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos utilizando
 4. **Para rodar a aplicação, coloque o arquivo `index.php` na pasta `public` e execute o comando:**
    - `php -S localhost:8000`
 5. **Pronto! Agora você pode testar a aplicação usando o Postman ou Insomnia.**
-
