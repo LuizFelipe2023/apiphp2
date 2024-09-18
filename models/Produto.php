@@ -16,31 +16,6 @@ class Produto
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    public function getProductById($id)
-    {
-        try {
-            $stmt = $this->conn->prepare('SELECT * FROM produtos WHERE id = ?');
-            $stmt->execute([$id]);
-            $product = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$product) {
-                return [
-                    "status" => "error",
-                    "message" => 'Não foi encontrado o produto selecionado'
-                ];
-            }
-
-            return [
-                "status" => "success",
-                "data" => $product
-            ];
-        } catch (Exception $e) {
-            return [
-                "status" => "error",
-                "message" => 'Houve um erro ao recuperar o produto: ' . $e->getMessage()
-            ];
-        }
-    }
 
     public function insertProduct($nome, $valor, $categoria)
     {
