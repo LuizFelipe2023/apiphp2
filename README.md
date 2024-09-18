@@ -1,19 +1,19 @@
 # Projeto de Gestão de Produtos e Pedidos
 
-Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP e uma API RESTful. O sistema permite adicionar, editar e apagar produtos e pedidos, além de listar todos os produtos e pedidos cadastrados. Também inclui funcionalidades de autenticação e gerenciamento de usuários.
+Este projeto é uma aplicação web para gerenciar produtos e pedidos utilizando PHP e uma API RESTful. O sistema oferece funcionalidades para adicionar, editar e excluir produtos e pedidos, além de listar todos os itens cadastrados. Inclui também funcionalidades de autenticação e gerenciamento de usuários.
 
 ## Tecnologias Utilizadas
 
 - **PHP:** Linguagem principal do backend.
-- **MySQL:** Linguagem de Manipulação de Bancos de Dados Relacionais.
-- **API RESTful:** Para operações CRUD (Criar, Ler, Atualizar, Deletar) com produtos e pedidos, e um sistema de login e autenticação de usuarios.
+- **MySQL:** Sistema de gerenciamento de banco de dados relacional.
+- **API RESTful:** Para operações CRUD (Criar, Ler, Atualizar, Deletar) com produtos e pedidos, além de um sistema de login e autenticação de usuários.
 
 ## Estrutura do Projeto
 
 ### Backend
 
 - **PHP:** Lógica de negócios e interação com o banco de dados.
-- **API:** Endpoints para manipulação de dados dos produtos e pedidos.
+- **API:** Endpoints para manipulação dos dados dos produtos e pedidos.
 
 ## Funcionalidades
 
@@ -81,7 +81,7 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 
 ### Criar Usuário
 
-- **Descrição:** Endpoint para criação de novos usuários.
+- **Descrição:** Endpoint para a criação de novos usuários.
 - **Método:** POST
 - **Rota:** `/usuarios`
 - **Campos Requeridos:**
@@ -111,29 +111,33 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 
 ### Solicitação de Redefinição de Senha
 
-- **Descrição:** Endpoint para redefinição de senha do usuário.
+- **Descrição:** Endpoint para solicitar a redefinição de senha.
 - **Método:** POST
 - **Rota:** `/solicitar-redefinicao-senha`
 - **Campos Requeridos:**
   - Email
   - Nova Senha
-- **Ação:** Envia uma requisição POST para a API para verificar o a existencia do usuario, se ele existir envia um token de redifinição de email por email ao usuário.
-  
-  ### Redefinição de Senha
+- **Ação:** Envia uma requisição POST para a API para verificar a existência do usuário. Se ele existir, envia um token de redefinição por e-mail ao usuário.
 
-- **Descrição:** Endpoint para realizar a troca de senha.
+### Redefinição de Senha
+
+- **Descrição:** Endpoint para redefinir a senha do usuário.
 - **Método:** POST
 - **Rota:** `/redefinir-senha`
 - **Campos Requeridos:**
   - Token
   - Nova Senha
-  - Confirmação da nova senha
-- **Ação:** A Api faz uma solicitação POST pedindo do usuario o token de redifinição enviado via email, sendo válido autoriza a troca de senha, o usuario digita a senha nova e depois redigita pra confirmar a senha nova. 
+  - Confirmação da Nova Senha
+- **Ação:** A API verifica o token de redefinição enviado por e-mail. Se o token for válido, permite a troca de senha. O usuário deve digitar a nova senha e confirmá-la.
 
-### Para Instalar e Executar a aplicação:
+## Instalação e Execução
 
-- **Baixe o repositorio**
-- **No seu console, rode o Composer Install**
-- **Instale essas bibliotecas aqui: composer require firebase/php-jwt e essa aqui composer require vlucas/phpdotenv. Com elas duas vcs poderam usar o JWT e o .env no php.**
-- **Para rodar aplicação, coloque na pasta public onde estar o arquivo index.php e rode esse comando: php -S localhost:8000**
-- **Pronto você agora pode testar no POSTMAN ou INSOMMIA**
+1. **Baixe o repositório do projeto.**
+2. **No console, execute `composer install` para instalar as dependências.**
+3. **Instale as bibliotecas necessárias com os comandos:**
+   - `composer require firebase/php-jwt`
+   - `composer require vlucas/phpdotenv`
+4. **Para rodar a aplicação, coloque o arquivo `index.php` na pasta `public` e execute o comando:**
+   - `php -S localhost:8000`
+5. **Pronto! Agora você pode testar a aplicação usando o Postman ou Insomnia.**
+
