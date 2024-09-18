@@ -26,25 +26,6 @@ class PedidoController
         }
     }
 
-    public function getById($id)
-    {
-        try {
-            $result = $this->pedido->getById($id);
-            if (is_array($result)) {
-                echo json_encode($result);
-            } else {
-                echo json_encode([
-                    "status" => "error",
-                    "message" => "Pedido não encontrado. Verifique o ID e tente novamente."
-                ]);
-            }
-        } catch (Exception $e) {
-            echo json_encode([
-                "status" => "error",
-                "message" => "Não foi possível encontrar o pedido solicitado. Por favor, tente novamente mais tarde."
-            ]);
-        }
-    }
 
     public function criarPedido($data)
     {
