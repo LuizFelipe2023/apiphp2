@@ -47,25 +47,6 @@ class Usuario
         }
     }
     
-    public function getUsuarioById($id)
-    {
-        try {
-            $stmt = $this->conn->prepare('SELECT id, nome, email, cpf, endereco FROM usuarios WHERE id = :id');
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-            if (!$usuario) {
-                return $this->errorResponse('Usuário não encontrado. Por favor, verifique o ID informado.');
-            }
-    
-            return $usuario;
-        } catch (Exception $e) {
-            return $this->errorResponse('Desculpe, houve um erro ao tentar buscar o usuário. Por favor, tente novamente. Detalhes: ' . $e->getMessage());
-        }
-    }
-    
-
     public function createUser($nome, $email, $password, $cpf, $endereco)
     {
         try {
