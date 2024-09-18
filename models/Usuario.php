@@ -30,6 +30,42 @@ class Usuario
         $this->endereco = $endereco;
     }
 
+    public function getAllUsers()
+    {
+        try {
+            $stmt = $this->conn->prepare('SELECT id, nome, email, cpf, endereco FROM usuarios');
+            $stmt->execute();
+            $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            if (!$usuarios) {
+                return $this->errorResponse('Nenhum usuário foi encontrado no momento. Por favor, tente novamente mais tarde.');
+            }
+    
+            return $usuarios;
+        } catch (Exception $e) {
+            return $this->errorResponse('Desculpe, ocorreu um erro ao buscar a lista de usuários. Por favor, tente novamente. Detalhes: ' . $e->getMessage());
+        }
+    }
+    
+    public function getUsuarioById($id)
+    {
+        try {
+            $stmt = $this->conn->prepare('SELECT id, nome, email, cpf, endereco FROM usuarios WHERE id = :id');
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if (!$usuario) {
+                return $this->errorResponse('Usuário não encontrado. Por favor, verifique o ID informado.');
+            }
+    
+            return $usuario;
+        } catch (Exception $e) {
+            return $this->errorResponse('Desculpe, houve um erro ao tentar buscar o usuário. Por favor, tente novamente. Detalhes: ' . $e->getMessage());
+        }
+    }
+    
+
     public function createUser($nome, $email, $password, $cpf, $endereco)
     {
         try {
@@ -47,14 +83,21 @@ class Usuario
     public function login($email, $password)
     {
         try {
-            $stmt = $this->conn->prepare('SELECT id, nome, email, password FROM usuarios WHERE email = ?');
+            $stmt = $this->conn->prepare('SELECT id, nome, email, password, isAdmin FROM usuarios WHERE email = ?');
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
                 $token = $this->generateToken($user['id'], $user['nome'], $user['email']);
                 $_SESSION['token'] = $token;
-                return $this->successResponse("Login bem-sucedido", ['token' => $token]);
+
+                $isAdmin = (bool)$user['isAdmin'];
+                $_SESSION['isAdmin'] = $isAdmin;
+
+                return $this->successResponse("Login bem-sucedido", [
+                    'token' => $token,
+                    'isAdmin' => $isAdmin
+                ]);
             } elseif (!$user) {
                 return $this->errorResponse("Usuário não encontrado com o email fornecido.");
             } else {
@@ -66,6 +109,7 @@ class Usuario
             return $this->errorResponse("Ocorreu um erro inesperado: " . $e->getMessage());
         }
     }
+
 
     private function generateToken($userId, $userName, $userEmail)
     {
