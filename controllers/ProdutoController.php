@@ -24,18 +24,6 @@ class ProdutoController
         }
     }
 
-    public function getProductById($id)
-    {
-        try {
-            $result = $this->produto->getProductById($id);
-            echo json_encode($result);
-        } catch (Exception $e) {
-            echo json_encode([
-                "status" => "error",
-                "message" => "Produto não encontrado. Verifique o ID e tente novamente."
-            ]);
-        }
-    }
 
     public function insertProduct($nome, $valor, $categoria)
     {
