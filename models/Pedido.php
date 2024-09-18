@@ -134,24 +134,6 @@ class Pedido
         }
     }
     
-    public function getById($id)
-    {
-        try {
-            $stmt = $this->conn->prepare('SELECT id, nome_cliente, cpf_cliente, endereco_cliente, valor_total, data_pedido, produtos FROM pedidos WHERE id = ?');
-            $stmt->execute([$id]);
-    
-            $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-            if ($pedido) {
-                $pedido['produtos'] = json_decode($pedido['produtos'], true); 
-                return $pedido;
-            } else {
-                return "Pedido não encontrado.";
-            }
-        } catch (Exception $e) {
-            return "Erro ao buscar pedido: " . $e->getMessage();
-        }
-    }
     
     public function deletePedido($id)
     {
