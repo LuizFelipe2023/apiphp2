@@ -1,9 +1,8 @@
 <?php
 
-
 require_once __DIR__ . '/../controllers/ProdutoController.php';
 require_once __DIR__ . '/../controllers/PedidoController.php';
-require_once __DIR__ . '/../controllers/UsuarioController.php'; 
+require_once __DIR__ . '/../controllers/UsuarioController.php';
 require_once __DIR__ . '/../config/Database.php';
 
 header("Access-Control-Allow-Origin: *");
@@ -28,6 +27,28 @@ function isAuthenticated()
 {
     return isset($_SESSION['token']);
 }
+
+function isAdmin()
+{
+    try {
+        if (session_status() === PHP_SESSION_NONE) {
+            throw new Exception('A sessão não foi iniciada.');
+        }
+
+        if (!isset($_SESSION['isAdmin'])) {
+            throw new Exception('O status de administrador não está definido na sessão.');
+        }
+
+        if ($_SESSION['isAdmin'] == false) {
+            return 'Você não pode acessar essa funcionalidade';
+        }
+
+        return true;
+    } catch (Exception $e) {
+        return 'Erro: ' . $e->getMessage();
+    }
+}
+
 
 function getRequestBody()
 {
@@ -61,6 +82,11 @@ function handleError($message, $statusCode = 400, $data = [])
 switch ($uri) {
     case '/produtos':
         if ($method === 'GET') {
+            $adminCheck = isAdmin();
+            if ($adminCheck !== true) {
+                handleError($adminCheck, 403);
+                exit;
+            }
             checkAuth();
             $result = $produtoController->getAllProducts();
             header('Content-Type: application/json');
@@ -72,7 +98,24 @@ switch ($uri) {
             handleError('Método não permitido. Utilize GET para obter produtos.', 405);
         }
         break;
-
+    case '/produto/{id}':
+        if ($method === 'GET') {
+            $adminCheck = isAdmin();
+            if ($adminCheck !== true) {
+                handleError($adminCheck, 403);
+                exit;
+            }
+            checkAuth();
+            $id = trim(parse_url($uri, PHP_URL_PATH), '/');
+            if (is_numeric($id)) {
+                $produtoController->getProductById($id);
+            } else {
+                handleError('ID do produto inválido. O ID deve ser numérico.', 400);
+            }
+        } else {
+            handleError('Método não permitido para esta rota. Utilize GET para buscar um produto.', 405);
+        }
+        break;
     case '/produto':
         if ($method === 'POST') {
             checkAuth();
@@ -104,7 +147,7 @@ switch ($uri) {
             }
         } elseif ($method === 'DELETE') {
             checkAuth();
-            $data = getRequestBody(); 
+            $data = getRequestBody();
             if (isset($data['id'])) {
                 $result = $produtoController->deleteProduct($data['id']);
                 header('Content-Type: application/json');
@@ -123,6 +166,11 @@ switch ($uri) {
 
     case '/pedidos':
         if ($method === 'GET') {
+            $adminCheck = isAdmin();
+            if ($adminCheck !== true) {
+                handleError($adminCheck, 403);
+                exit;
+            }
             checkAuth();
             $result = $pedidoController->getAll();
             header('Content-Type: application/json');
@@ -134,7 +182,24 @@ switch ($uri) {
             handleError('Método não permitido. Utilize GET para obter pedidos.', 405);
         }
         break;
-
+    case '/pedido/{id}':
+        if ($method === 'GET') {
+            $adminCheck = isAdmin();
+            if ($adminCheck !== true) {
+                handleError($adminCheck, 403);
+                exit;
+            }
+            checkAuth();
+            $id = trim(parse_url($uri, PHP_URL_PATH), '/');
+            if (is_numeric($id)) {
+                $pedidoController->getById($id);
+            } else {
+                handleError('ID do pedido inválido. O ID deve ser numérico.', 400);
+            }
+        } else {
+            handleError('Método não permitido para esta rota. Utilize GET para buscar um pedido.', 405);
+        }
+        break;
     case '/pedido':
         if ($method === 'POST') {
             checkAuth();
@@ -176,7 +241,7 @@ switch ($uri) {
             }
         } elseif ($method === 'DELETE') {
             checkAuth();
-            $data = getRequestBody(); // Use getRequestBody() para lidar com JSON
+            $data = getRequestBody();
             if (isset($data['id'])) {
                 $result = $pedidoController->deletePedido($data['id']);
                 header('Content-Type: application/json');
@@ -194,7 +259,15 @@ switch ($uri) {
         break;
 
     case '/usuarios':
-        if ($method === 'POST') {
+        if ($method === 'GET') {
+            $adminCheck = isAdmin();
+            if ($adminCheck !== true) {
+                handleError($adminCheck, 403);
+                exit;
+            }
+            checkAuth();
+            $usuarioController->getAllUsers();
+        } elseif ($method === 'POST') {
             $data = getRequestBody();
             if (isset($data['nome'], $data['email'], $data['password'], $data['cpf'], $data['endereco'])) {
                 $usuarioController->criarUsuario($data['nome'], $data['email'], $data['password'], $data['cpf'], $data['endereco']);
@@ -207,10 +280,31 @@ switch ($uri) {
                 handleError('Dados do usuário incompletos. Verifique os campos nome, email, password, cpf e endereco.', 400, $data);
             }
         } else {
-            handleError('Método não permitido para esta rota. Utilize POST para criar um usuário.', 405);
+            handleError('Método não permitido para esta rota. Utilize GET para listar ou POST para criar um usuário.', 405);
         }
         break;
 
+    case '/usuarios/{id}':
+        if ($method === 'GET') {
+            $adminCheck = isAdmin();
+            if ($adminCheck !== true) {
+                handleError($adminCheck, 403);
+                exit;
+            }
+            checkAuth();
+            $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $pathParts = explode('/', trim($path, '/'));
+            $id = end($pathParts);
+
+            if (is_numeric($id)) {
+                $usuarioController->getUserById($id);
+            } else {
+                handleError('ID inválido. O ID deve ser um número.', 400);
+            }
+        } else {
+            handleError('Método não permitido para esta rota. Utilize GET para obter um usuário por ID.', 405);
+        }
+        break;
     case '/login':
         if ($method === 'POST') {
             $data = getRequestBody();
@@ -226,7 +320,6 @@ switch ($uri) {
 
     case '/logout':
         if ($method === 'POST') {
-            session_start();
             session_destroy();
             header('Content-Type: application/json');
             echo json_encode([
@@ -238,32 +331,32 @@ switch ($uri) {
         }
         break;
 
-        case '/solicitar-redefinicao-senha':
-            if ($method === 'POST') {
-                $data = getRequestBody();
-                if (isset($data['email'])) {
-                    $usuarioController->solicitarRedefinicaoSenha($data['email']);
-                } else {
-                    handleError('Dados incompletos. Verifique o campo email.', 400, $data);
-                }
+    case '/solicitar-redefinicao-senha':
+        if ($method === 'POST') {
+            $data = getRequestBody();
+            if (isset($data['email'])) {
+                $usuarioController->solicitarRedefinicaoSenha($data['email']);
             } else {
-                handleError('Método não permitido para esta rota. Utilize POST para solicitar redefinição de senha.', 405);
+                handleError('Dados incompletos. Verifique o campo email.', 400, $data);
             }
-            break;
-        
-            case '/redefinir-senha':
-                if ($method === 'POST') {
-                    $data = getRequestBody();
-                    if (isset($data['token'], $data['novaSenha'], $data['confirmacaoSenha'])) {
-                        $usuarioController->redefinirSenha($data['token'], $data['novaSenha'], $data['confirmacaoSenha']);
-                    } else {
-                        handleError('Dados incompletos. Verifique os campos token, novaSenha e confirmacaoSenha.', 400, $data);
-                    }
-                } else {
-                    handleError('Método não permitido para esta rota. Utilize POST para redefinir a senha.', 405);
-                }
-                break;
-            
+        } else {
+            handleError('Método não permitido para esta rota. Utilize POST para solicitar redefinição de senha.', 405);
+        }
+        break;
+
+    case '/redefinir-senha':
+        if ($method === 'POST') {
+            $data = getRequestBody();
+            if (isset($data['token'], $data['novaSenha'], $data['confirmacaoSenha'])) {
+                $usuarioController->redefinirSenha($data['token'], $data['novaSenha'], $data['confirmacaoSenha']);
+            } else {
+                handleError('Dados incompletos. Verifique os campos token, novaSenha e confirmacaoSenha.', 400, $data);
+            }
+        } else {
+            handleError('Método não permitido para esta rota. Utilize POST para redefinir a senha.', 405);
+        }
+        break;
+
 
     default:
         handleError('Rota não encontrada.', 404);
