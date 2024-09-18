@@ -98,24 +98,6 @@ switch ($uri) {
             handleError('Método não permitido. Utilize GET para obter produtos.', 405);
         }
         break;
-    case '/produto/{id}':
-        if ($method === 'GET') {
-            $adminCheck = isAdmin();
-            if ($adminCheck !== true) {
-                handleError($adminCheck, 403);
-                exit;
-            }
-            checkAuth();
-            $id = trim(parse_url($uri, PHP_URL_PATH), '/');
-            if (is_numeric($id)) {
-                $produtoController->getProductById($id);
-            } else {
-                handleError('ID do produto inválido. O ID deve ser numérico.', 400);
-            }
-        } else {
-            handleError('Método não permitido para esta rota. Utilize GET para buscar um produto.', 405);
-        }
-        break;
     case '/produto':
         if ($method === 'POST') {
             checkAuth();
@@ -180,24 +162,6 @@ switch ($uri) {
             ]);
         } else {
             handleError('Método não permitido. Utilize GET para obter pedidos.', 405);
-        }
-        break;
-    case '/pedido/{id}':
-        if ($method === 'GET') {
-            $adminCheck = isAdmin();
-            if ($adminCheck !== true) {
-                handleError($adminCheck, 403);
-                exit;
-            }
-            checkAuth();
-            $id = trim(parse_url($uri, PHP_URL_PATH), '/');
-            if (is_numeric($id)) {
-                $pedidoController->getById($id);
-            } else {
-                handleError('ID do pedido inválido. O ID deve ser numérico.', 400);
-            }
-        } else {
-            handleError('Método não permitido para esta rota. Utilize GET para buscar um pedido.', 405);
         }
         break;
     case '/pedido':
@@ -281,28 +245,6 @@ switch ($uri) {
             }
         } else {
             handleError('Método não permitido para esta rota. Utilize GET para listar ou POST para criar um usuário.', 405);
-        }
-        break;
-
-    case '/usuarios/{id}':
-        if ($method === 'GET') {
-            $adminCheck = isAdmin();
-            if ($adminCheck !== true) {
-                handleError($adminCheck, 403);
-                exit;
-            }
-            checkAuth();
-            $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $pathParts = explode('/', trim($path, '/'));
-            $id = end($pathParts);
-
-            if (is_numeric($id)) {
-                $usuarioController->getUserById($id);
-            } else {
-                handleError('ID inválido. O ID deve ser um número.', 400);
-            }
-        } else {
-            handleError('Método não permitido para esta rota. Utilize GET para obter um usuário por ID.', 405);
         }
         break;
     case '/login':
