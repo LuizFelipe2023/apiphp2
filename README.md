@@ -5,7 +5,7 @@ Este projeto é uma aplicação web para gerenciar produtos e pedidos usando PHP
 ## Tecnologias Utilizadas
 
 - **PHP:** Linguagem principal do backend.
-- **MySQL** Linguagem de Manipulação de Bancos de Dados Relacionais.
+- **MySQL:** Linguagem de Manipulação de Bancos de Dados Relacionais.
 - **API RESTful:** Para operações CRUD (Criar, Ler, Atualizar, Deletar) com produtos e pedidos, e um sistema de login e autenticação de usuarios.
 
 ## Estrutura do Projeto
