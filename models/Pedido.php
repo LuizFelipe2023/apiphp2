@@ -65,18 +65,18 @@ class Pedido
     {
         try {
             $this->conn->beginTransaction();
-    
+
             $valorTotal = $this->calcularValorTotal();
-    
+
             $produtosJson = json_encode($this->produtos);
-    
+
             $stmt = $this->conn->prepare('INSERT INTO pedidos (nome_cliente, cpf_cliente, endereco_cliente, valor_total, data_pedido, produtos) VALUES (?, ?, ?, ?, ?, ?)');
             $stmt->execute([$this->nome, $this->cpf, $this->endereco, $valorTotal, $this->dataPedido, $produtosJson]);
-    
+
             $pedidoId = $this->conn->lastInsertId();
-    
+
             $this->conn->commit();
-    
+
             return [
                 "status" => "success",
                 "message" => "Pedido criado com sucesso!",
@@ -98,16 +98,16 @@ class Pedido
     {
         try {
             $this->conn->beginTransaction();
-    
+
             $valorTotal = $this->calcularValorTotal();
-    
+
             $produtosJson = json_encode($this->produtos);
-    
+
             $stmt = $this->conn->prepare('UPDATE pedidos SET nome_cliente = ?, cpf_cliente = ?, endereco_cliente = ?, valor_total = ?, data_pedido = ?, produtos = ? WHERE id = ?');
             $stmt->execute([$this->nome, $this->cpf, $this->endereco, $valorTotal, $this->dataPedido, $produtosJson, $pedidoId]);
-    
+
             $this->conn->commit();
-    
+
             return [
                 "status" => "success",
                 "message" => "Pedido atualizado com sucesso!",
@@ -123,8 +123,8 @@ class Pedido
             ];
         }
     }
-    
-    public function getAll()
+
+    public function getAllPedidos()
     {
         try {
             $stmt = $this->conn->query('SELECT id, nome_cliente, cpf_cliente, endereco_cliente, valor_total, data_pedido FROM pedidos');
@@ -133,10 +133,43 @@ class Pedido
             return "Erro ao buscar pedidos: " . $e->getMessage();
         }
     }
-    
-    
+
+    public function getPedidobyId($id)
+    {
+        try {
+            $stmt = $this->conn->prepare('SELECT nome_cliente, cpf_cliente, endereco_cliente, valor_total, data_pedido FROM pedidos WHERE id = ?');
+            $stmt->bindParam(1, $id, PDO::PARAM_INT);
+            $stmt->execute([$id]);
+
+            $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($pedido) {
+                return $pedido;
+            } else {
+                return [
+                    'status' => 'error',
+                    'message' => 'Pedido não encontrado.'
+                ];
+            }
+        } catch (Exception $e) {
+            return [
+                'status' => 'error',
+                'message' => 'Erro ao buscar o pedido: ' . $e->getMessage()
+            ];
+        }
+    }
+
+
     public function deletePedido($id)
     {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id === false) {
+            return [
+                "status" => "error",
+                "message" => 'ID inválido.'
+            ];
+        }
+        
         try {
             $stmtDelete = $this->conn->prepare('DELETE FROM pedidos WHERE id = ?');
             if ($stmtDelete->execute([$id])) {

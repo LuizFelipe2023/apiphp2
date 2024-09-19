@@ -16,7 +16,46 @@ class Produto
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getProductById($id)
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id === false) {
+            return [
+                "status" => "error",
+                "message" => 'ID inválido.'
+            ];
+        }
 
+        try {
+            $stmt = $this->conn->prepare('SELECT * FROM produtos WHERE id = :id');
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$product) {
+                return [
+                    "status" => "error",
+                    "message" => 'Não foi encontrado o produto selecionado.'
+                ];
+            }
+
+            return [
+                "status" => "success",
+                "data" => $product
+            ];
+        } catch (PDOException $e) {
+            return [
+                "status" => "error",
+                "message" => 'Erro ao acessar o banco de dados: ' . $e->getMessage()
+            ];
+        } catch (Exception $e) {
+            return [
+                "status" => "error",
+                "message" => 'Houve um erro ao recuperar o produto: ' . $e->getMessage()
+            ];
+        }
+    }
     public function insertProduct($nome, $valor, $categoria)
     {
         try {
@@ -45,7 +84,7 @@ class Produto
     {
         try {
             $this->conn->beginTransaction();
-            
+
             $stmt = $this->conn->prepare('INSERT INTO produtos (nome_produto, valor_produto, categoria_produto) VALUES (?, ?, ?)');
 
             foreach ($produtos as $produto) {

@@ -36,23 +36,63 @@ class Usuario
             $stmt = $this->conn->prepare('SELECT id, nome, email, cpf, endereco FROM usuarios');
             $stmt->execute();
             $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
             if (!$usuarios) {
                 return $this->errorResponse('Nenhum usuário foi encontrado no momento. Por favor, tente novamente mais tarde.');
             }
-    
+
             return $usuarios;
         } catch (Exception $e) {
             return $this->errorResponse('Desculpe, ocorreu um erro ao buscar a lista de usuários. Por favor, tente novamente. Detalhes: ' . $e->getMessage());
         }
     }
-    
+
+    public function getUserById($id)
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if ($id === false) {
+            return [
+                "status" => "error",
+                "message" => 'ID inválido.'
+            ];
+        }
+        try {
+            $stmt = $this->conn->prepare('SELECT nome, email, cpf, endereco FROM usuarios WHERE id = ?');
+            $stmt->bindParam(1, $id, PDO::PARAM_INT);
+            $stmt->execute([$id]);
+            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$usuario) {
+                return $this->errorResponse('Nenhum usuario foi encontrado com esta id, por favor digite uma id válida');
+            }
+            return $usuario;
+        } catch (Exception $e) {
+            return $this->errorResponse('Desculpe, ocorreu um erro ao retornar o usuario solicitado. Por favor, tente novamente. Detalhes: ' . $e->getMessage());
+        }
+    }
+
     public function createUser($nome, $email, $password, $cpf, $endereco)
     {
         try {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return $this->errorResponse("O endereço de e-mail fornecido não é válido.");
+            }
+
+            if (strlen($password) < 8) {
+                return $this->errorResponse("A senha no mínimo deve conter 8 caracteres.");
+            }
+
             $password_hashed = password_hash($password, PASSWORD_BCRYPT);
+
             $stmt = $this->conn->prepare('INSERT INTO usuarios (nome, email, password, cpf, endereco) VALUES (?, ?, ?, ?, ?)');
-            $stmt->execute([$nome, $email, $password_hashed, $cpf, $endereco]);
+
+            $stmt->bindParam(1, $nome, PDO::PARAM_STR);
+            $stmt->bindParam(2, $email, PDO::PARAM_STR);
+            $stmt->bindParam(3, $password_hashed, PDO::PARAM_STR);
+            $stmt->bindParam(4, $cpf, PDO::PARAM_STR); 
+            $stmt->bindParam(5, $endereco, PDO::PARAM_STR);
+
+            $stmt->execute();
+
             return $this->successResponse("Usuário cadastrado com sucesso");
         } catch (PDOException $e) {
             return $this->errorResponse("Erro ao conectar com o banco de dados: " . $e->getMessage());
@@ -64,6 +104,9 @@ class Usuario
     public function login($email, $password)
     {
         try {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return $this->errorResponse("O endereço de e-mail fornecido não é válido.");
+            }
             $stmt = $this->conn->prepare('SELECT id, nome, email, password, isAdmin FROM usuarios WHERE email = ?');
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -91,7 +134,6 @@ class Usuario
         }
     }
 
-
     private function generateToken($userId, $userName, $userEmail)
     {
         $issuedAt = time();
@@ -110,6 +152,9 @@ class Usuario
     public function requestPasswordReset($email)
     {
         try {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return $this->errorResponse("O endereço de e-mail fornecido não é válido.");
+            }
             $stmt = $this->conn->prepare('SELECT id, nome FROM usuarios WHERE email = ?');
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -152,6 +197,9 @@ class Usuario
 
             if ($reset && strtotime($reset['expires_at']) > time()) {
                 if ($newPassword === $confirmPassword) {
+                    if (strlen($newPassword) < 8) {
+                        return $this->errorResponse("A senha no mínimo deve conter 8 caracteres.");
+                    }
                     $password_hashed = password_hash($newPassword, PASSWORD_BCRYPT);
                     $email = $reset['email'];
 
@@ -176,24 +224,6 @@ class Usuario
         }
     }
 
-    private function successResponse($message, $data = [])
-    {
-        return [
-            "status" => "success",
-            "message" => $message,
-            "data" => $data
-        ];
-    }
-
-    private function errorResponse($message, $data = [])
-    {
-        return [
-            "status" => "error",
-            "message" => $message,
-            "data_received" => $data
-        ];
-    }
-
     public function logout()
     {
         try {
@@ -205,5 +235,15 @@ class Usuario
         } catch (Exception $e) {
             return $this->errorResponse("Ocorreu um erro inesperado: " . $e->getMessage());
         }
+    }
+
+    private function errorResponse($message)
+    {
+        return ['status' => 'error', 'message' => $message];
+    }
+
+    private function successResponse($message, $data = [])
+    {
+        return ['status' => 'success', 'message' => $message, 'data' => $data];
     }
 }
