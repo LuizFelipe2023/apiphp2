@@ -30,25 +30,16 @@ function isAuthenticated()
 
 function isAdmin()
 {
-    try {
-        if (session_status() === PHP_SESSION_NONE) {
-            throw new Exception('A sessão não foi iniciada.');
-        }
-
-        if (!isset($_SESSION['isAdmin'])) {
-            throw new Exception('O status de administrador não está definido na sessão.');
-        }
-
-        if ($_SESSION['isAdmin'] == false) {
-            return 'Você não pode acessar essa funcionalidade';
-        }
-
-        return true;
-    } catch (Exception $e) {
-        return 'Erro: ' . $e->getMessage();
+    if (session_status() === PHP_SESSION_NONE) {
+        return 'Sessão não iniciada.';
     }
-}
 
+    if (!isset($_SESSION['isAdmin'])) {
+        return 'Status de administrador não definido.';
+    }
+
+    return $_SESSION['isAdmin'] ?? false;
+}
 
 function getRequestBody()
 {
@@ -60,10 +51,7 @@ function checkAuth()
 {
     if (!isAuthenticated()) {
         http_response_code(403);
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Usuário não autenticado. Faça o login para acessar esta rota.'
-        ]);
+        echo json_encode(['status' => 'error', 'message' => 'Usuário não autenticado.']);
         exit;
     }
 }
@@ -72,235 +60,211 @@ function handleError($message, $statusCode = 400, $data = [])
 {
     http_response_code($statusCode);
     header('Content-Type: application/json');
-    echo json_encode([
-        'status' => 'error',
-        'message' => $message,
-        'data_received' => $data
-    ]);
+    echo json_encode(['status' => 'error', 'message' => $message, 'data_received' => $data]);
 }
 
-switch ($uri) {
-    case '/produtos':
-        if ($method === 'GET') {
-            $adminCheck = isAdmin();
-            if ($adminCheck !== true) {
-                handleError($adminCheck, 403);
-                exit;
-            }
-            checkAuth();
-            $result = $produtoController->getAllProducts();
-            header('Content-Type: application/json');
-            echo json_encode([
-                'status' => 'success',
-                'data' => $result
-            ]);
+function route($path, $controller, $actions)
+{
+    global $uri, $method;
+    if ($uri === $path) {
+        if (isset($actions[$method])) {
+            $actions[$method]();
         } else {
-            handleError('Método não permitido. Utilize GET para obter produtos.', 405);
+            handleError('Método não permitido.', 405);
         }
-        break;
-    case '/produto':
-        if ($method === 'POST') {
-            checkAuth();
-            $data = getRequestBody();
-            if (isset($data['nome_produto'], $data['valor_produto'], $data['categoria_produto'])) {
-                $result = $produtoController->insertProduct($data['nome_produto'], $data['valor_produto'], $data['categoria_produto']);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Produto inserido com sucesso.',
-                    'data' => $result
-                ]);
-            } else {
-                handleError('Dados do produto incompletos. Verifique os campos nome_produto, valor_produto e categoria_produto.', 400, $data);
-            }
-        } elseif ($method === 'PUT') {
-            checkAuth();
-            $data = getRequestBody();
-            if (isset($data['id'], $data['nome_produto'], $data['valor_produto'], $data['categoria_produto'])) {
-                $result = $produtoController->updateProduct($data['id'], $data['nome_produto'], $data['valor_produto'], $data['categoria_produto']);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Produto atualizado com sucesso.',
-                    'data' => $result
-                ]);
-            } else {
-                handleError('Dados do produto incompletos. Verifique os campos id, nome_produto, valor_produto e categoria_produto.', 400, $data);
-            }
-        } elseif ($method === 'DELETE') {
-            checkAuth();
-            $data = getRequestBody();
-            if (isset($data['id'])) {
-                $result = $produtoController->deleteProduct($data['id']);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Produto deletado com sucesso.',
-                    'data' => $result
-                ]);
-            } else {
-                handleError('ID do produto não fornecido. Certifique-se de que o campo id está incluído no corpo da solicitação.', 400, $data);
-            }
-        } else {
-            handleError('Método não permitido para esta rota. Utilize POST, PUT ou DELETE conforme apropriado.', 405);
-        }
-        break;
+        exit;
+    }
+}
 
-    case '/pedidos':
-        if ($method === 'GET') {
-            $adminCheck = isAdmin();
-            if ($adminCheck !== true) {
-                handleError($adminCheck, 403);
-                exit;
-            }
-            checkAuth();
-            $result = $pedidoController->getAll();
-            header('Content-Type: application/json');
-            echo json_encode([
-                'status' => 'success',
-                'data' => $result
-            ]);
-        } else {
-            handleError('Método não permitido. Utilize GET para obter pedidos.', 405);
+route('/produtos', $produtoController, [
+    'GET' => function () use ($produtoController) {
+        if (isAdmin() !== true) {
+            handleError('Permissão negada.', 403);
         }
-        break;
-    case '/pedido':
-        if ($method === 'POST') {
-            checkAuth();
-            $data = getRequestBody();
-            if (
-                isset($data['nome_cliente'], $data['cpf_cliente'], $data['endereco_cliente'], $data['data_pedido'], $data['produtos']) &&
-                is_array($data['produtos']) &&
-                !empty($data['produtos']) &&
-                array_reduce($data['produtos'], fn($carry, $item) => $carry && isset($item['id'], $item['quantidade']), true)
-            ) {
+        checkAuth();
+        $result = $produtoController->getAllProducts();
+        // echo json_encode(['status' => 'success', 'data' => $result]);
+    }
+]);
+
+route('/retorna-produto', $produtoController, [
+    'GET' => function () use ($produtoController) {
+        if (isAdmin() !== true) {
+            handleError('Permissão negada.', 403);
+        }
+        checkAuth();
+        $id = $_GET['id'] ?? null;
+        if (is_numeric($id)) {
+            $result = $produtoController->getProduct($id);
+            // echo json_encode(['status' => 'success', 'data' => $result]);
+        } else {
+            handleError('ID inválido.', 400);
+        }
+    }
+]);
+
+route('/produto', $produtoController, [
+    'POST' => function () use ($produtoController) {
+        checkAuth();
+        $data = getRequestBody();
+        if (isset($data['nome_produto'], $data['valor_produto'], $data['categoria_produto'])) {
+            $result = $produtoController->insertProduct($data['nome_produto'], $data['valor_produto'], $data['categoria_produto']);
+            // echo json_encode(['status' => 'success', 'message' => 'Produto inserido com sucesso.', 'data' => $result]);
+        } else {
+            handleError('Dados incompletos.', 400, $data);
+        }
+    },
+    'PUT' => function () use ($produtoController) {
+        checkAuth();
+        $data = getRequestBody();
+        if (isset($data['id'], $data['nome_produto'], $data['valor_produto'], $data['categoria_produto'])) {
+            $result = $produtoController->updateProduct($data['id'], $data['nome_produto'], $data['valor_produto'], $data['categoria_produto']);
+            // echo json_encode(['status' => 'success', 'message' => 'Produto atualizado com sucesso.', 'data' => $result]);
+        } else {
+            handleError('Dados incompletos.', 400, $data);
+        }
+    },
+    'DELETE' => function () use ($produtoController) {
+        checkAuth();
+        $data = getRequestBody();
+        if (isset($data['id'])) {
+            $result = $produtoController->deleteProduct($data['id']);
+            // echo json_encode(['status' => 'success', 'message' => 'Produto deletado com sucesso.', 'data' => $result]);
+        } else {
+            handleError('ID não fornecido.', 400, $data);
+        }
+    }
+]);
+
+route('/pedidos', $pedidoController, [
+    'GET' => function () use ($pedidoController) {
+        if (isAdmin() !== true) {
+            handleError('Permissão negada.', 403);
+        }
+        checkAuth();
+        $result = $pedidoController->getAll();
+        // echo json_encode(['status' => 'success', 'data' => $result]);
+    }
+]);
+
+route('/retorna-pedido', $pedidoController, [
+    'GET' => function () use ($pedidoController) {
+        if (isAdmin() !== true) {
+            handleError('Permissão negada.', 403);
+        }
+        checkAuth();
+        $id = $_GET['id'] ?? null;
+        if (is_numeric($id)) {
+            $result = $pedidoController->getbyId($id);
+            // echo json_encode(['status' => 'success', 'data' => $result]);
+        } else {
+            handleError('ID inválido.', 400);
+        }
+    }
+]);
+
+route('/pedido', $pedidoController, [
+    'POST' => function () use ($pedidoController) {
+        checkAuth();
+        $data = getRequestBody();
+        if (isset($data['nome_cliente'], $data['cpf_cliente'], $data['endereco_cliente'], $data['data_pedido'], $data['produtos'])) {
+            if (is_array($data['produtos']) && !empty($data['produtos']) && array_reduce($data['produtos'], fn($carry, $item) => $carry && isset($item['id'], $item['quantidade']), true)) {
                 $result = $pedidoController->criarPedido($data);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Pedido criado com sucesso.',
-                    'data' => $result
-                ]);
+                // echo json_encode(['status' => 'success', 'message' => 'Pedido criado com sucesso.', 'data' => $result]);
             } else {
-                handleError('Dados do pedido incompletos ou mal formatados. Verifique os campos nome_cliente, cpf_cliente, endereco_cliente, data_pedido e produtos.', 400, $data);
+                handleError('Dados do produto inválidos.', 400, $data);
             }
-        } elseif ($method === 'PUT') {
-            checkAuth();
-            $data = getRequestBody();
-            if (
-                isset($data['id'], $data['nome_cliente'], $data['cpf_cliente'], $data['endereco_cliente'], $data['data_pedido'], $data['produtos']) &&
-                is_array($data['produtos']) &&
-                !empty($data['produtos']) &&
-                array_reduce($data['produtos'], fn($carry, $item) => $carry && isset($item['id'], $item['quantidade']), true)
-            ) {
+        } else {
+            handleError('Dados do pedido incompletos.', 400, $data);
+        }
+    },
+    'PUT' => function () use ($pedidoController) {
+        checkAuth();
+        $data = getRequestBody();
+        if (isset($data['id'], $data['nome_cliente'], $data['cpf_cliente'], $data['endereco_cliente'], $data['data_pedido'], $data['produtos'])) {
+            if (is_array($data['produtos']) && !empty($data['produtos']) && array_reduce($data['produtos'], fn($carry, $item) => $carry && isset($item['id'], $item['quantidade']), true)) {
                 $result = $pedidoController->atualizarPedido($data['id'], $data);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Pedido atualizado com sucesso.',
-                    'data' => $result
-                ]);
+                // echo json_encode(['status' => 'success', 'message' => 'Pedido atualizado com sucesso.', 'data' => $result]);
             } else {
-                handleError('Dados do pedido incompletos ou mal formatados. Verifique os campos id, nome_cliente, cpf_cliente, endereco_cliente, data_pedido e produtos.', 400, $data);
-            }
-        } elseif ($method === 'DELETE') {
-            checkAuth();
-            $data = getRequestBody();
-            if (isset($data['id'])) {
-                $result = $pedidoController->deletePedido($data['id']);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Pedido deletado com sucesso.',
-                    'data' => $result
-                ]);
-            } else {
-                handleError('ID do pedido não fornecido. Certifique-se de que o campo id está incluído no corpo da solicitação.', 400, $data);
+                handleError('Dados do produto inválidos.', 400, $data);
             }
         } else {
-            handleError('Método não permitido para esta rota. Utilize POST, PUT ou DELETE conforme apropriado.', 405);
+            handleError('Dados do pedido incompletos.', 400, $data);
         }
-        break;
-
-    case '/usuarios':
-        if ($method === 'GET') {
-            $adminCheck = isAdmin();
-            if ($adminCheck !== true) {
-                handleError($adminCheck, 403);
-                exit;
-            }
-            checkAuth();
-            $usuarioController->getAllUsers();
-        } elseif ($method === 'POST') {
-            $data = getRequestBody();
-            if (isset($data['nome'], $data['email'], $data['password'], $data['cpf'], $data['endereco'])) {
-                $usuarioController->criarUsuario($data['nome'], $data['email'], $data['password'], $data['cpf'], $data['endereco']);
-                header('Content-Type: application/json');
-                echo json_encode([
-                    'status' => 'success',
-                    'message' => 'Usuário criado com sucesso.'
-                ]);
-            } else {
-                handleError('Dados do usuário incompletos. Verifique os campos nome, email, password, cpf e endereco.', 400, $data);
-            }
+    },
+    'DELETE' => function () use ($pedidoController) {
+        checkAuth();
+        $data = getRequestBody();
+        if (isset($data['id'])) {
+            $result = $pedidoController->deletePedido($data['id']);
+            // echo json_encode(['status' => 'success', 'message' => 'Pedido deletado com sucesso.', 'data' => $result]);
         } else {
-            handleError('Método não permitido para esta rota. Utilize GET para listar ou POST para criar um usuário.', 405);
+            handleError('ID não fornecido.', 400, $data);
         }
-        break;
-    case '/login':
-        if ($method === 'POST') {
-            $data = getRequestBody();
-            if (isset($data['email'], $data['password'])) {
-                $usuarioController->login($data['email'], $data['password']);
-            } else {
-                handleError('Dados de login incompletos. Verifique os campos email e password.', 400, $data);
-            }
+    }
+]);
+
+route('/usuarios', $usuarioController, [
+    'GET' => function () use ($usuarioController) {
+        if (isAdmin() !== true) {
+            handleError('Permissão negada.', 403);
+        }
+        checkAuth();
+        $result = $usuarioController->getAllUsers();
+        // echo json_encode(['status' => 'success', 'data' => $result]);
+    },
+    'POST' => function () use ($usuarioController) {
+        $data = getRequestBody();
+        if (isset($data['nome'], $data['email'], $data['password'], $data['cpf'], $data['data_nascimento'], $data['telefone'])) {
+            $result = $usuarioController->criarUsuario($data['nome'], $data['email'], $data['password'], $data['cpf'], $data['data_nascimento'], $data['telefone']);
+            echo json_encode(['status' => 'success', 'message' => 'Usuário criado com sucesso.', 'data' => $result]);
         } else {
-            handleError('Método não permitido para esta rota. Utilize POST para login.', 405);
+            handleError('Dados do usuário incompletos.', 400, $data);
         }
-        break;
+    }
+]);
 
-    case '/logout':
-        if ($method === 'POST') {
-            session_destroy();
-            header('Content-Type: application/json');
-            echo json_encode([
-                'status' => 'success',
-                'message' => 'Logout realizado com sucesso.'
-            ]);
+route('/login', $usuarioController, [
+    'POST' => function () use ($usuarioController) {
+        $data = getRequestBody();
+        if (isset($data['email'], $data['password'])) {
+            $result = $usuarioController->login($data['email'], $data['password']);
+            // echo json_encode(['status' => 'success', 'message' => 'Usuário autenticado com sucesso.', 'data' => $result]);
         } else {
-            handleError('Método não permitido para esta rota. Utilize POST para logout.', 405);
+            handleError('Dados de login incompletos.', 400, $data);
         }
-        break;
+    }
+]);
 
-    case '/solicitar-redefinicao-senha':
-        if ($method === 'POST') {
-            $data = getRequestBody();
-            if (isset($data['email'])) {
-                $usuarioController->solicitarRedefinicaoSenha($data['email']);
-            } else {
-                handleError('Dados incompletos. Verifique o campo email.', 400, $data);
-            }
+route('/logout', $usuarioController, [
+    'POST' => function () use ($usuarioController) {
+        $result = $usuarioController->logout();
+        // echo json_encode(['status' => 'success', 'message' => 'Usuário deslogado com sucesso.', 'data' => $result]);
+    }
+]);
+
+route('/solicitar-redefinicao-senha', $usuarioController, [
+    'POST' => function () use ($usuarioController) {
+        $data = getRequestBody();
+        if (isset($data['email'])) {
+            $result = $usuarioController->solicitarRedefinicaoSenha($data['email']);
+            // echo json_encode(['status' => 'success', 'message' => 'Instruções para redefinir a senha enviadas para o e-mail.', 'data' => $result]);
         } else {
-            handleError('Método não permitido para esta rota. Utilize POST para solicitar redefinição de senha.', 405);
+            handleError('E-mail não fornecido.', 400, $data);
         }
-        break;
+    }
+]);
 
-    case '/redefinir-senha':
-        if ($method === 'POST') {
-            $data = getRequestBody();
-            if (isset($data['token'], $data['novaSenha'], $data['confirmacaoSenha'])) {
-                $usuarioController->redefinirSenha($data['token'], $data['novaSenha'], $data['confirmacaoSenha']);
-            } else {
-                handleError('Dados incompletos. Verifique os campos token, novaSenha e confirmacaoSenha.', 400, $data);
-            }
+route('/redefinir-senha', $usuarioController, [
+    'POST' => function () use ($usuarioController) {
+        $data = getRequestBody();
+        if (isset($data['token'], $data['senha'])) {
+            $result = $usuarioController->redefinirSenha($data['token'], $data['senha'],$data['confirmacao_senha']);
+            // echo json_encode(['status' => 'success', 'message' => 'Senha redefinida com sucesso.', 'data' => $result]);
         } else {
-            handleError('Método não permitido para esta rota. Utilize POST para redefinir a senha.', 405);
+            handleError('Token ou senha não fornecidos.', 400, $data);
         }
-        break;
+    }
+]);
 
-
-    default:
-        handleError('Rota não encontrada.', 404);
-        break;
-}
+handleError('Rota não encontrada.', 404);
