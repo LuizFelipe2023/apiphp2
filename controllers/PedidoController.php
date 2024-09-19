@@ -16,7 +16,7 @@ class PedidoController
     public function getAll()
     {
         try {
-            $result = $this->pedido->getAll();
+            $result = $this->pedido->getAllPedidos();
             echo json_encode($result);
         } catch (Exception $e) {
             echo json_encode([
@@ -26,6 +26,18 @@ class PedidoController
         }
     }
 
+    public function getbyId($id)
+    {
+        try {
+            $result = $this->pedido->getPedidobyId($id);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível carregar o pedido. Por favor, tente novamente mais tarde."
+            ]);
+        }
+    }
 
     public function criarPedido($data)
     {

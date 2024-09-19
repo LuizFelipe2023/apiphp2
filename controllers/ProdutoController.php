@@ -24,6 +24,18 @@ class ProdutoController
         }
     }
 
+    public function getProduct($id)
+    {
+        try {
+            $result = $this->produto->getProductById($id);
+            echo json_encode($result);
+        } catch (Exception $e) {
+            echo json_encode([
+                "status" => "error",
+                "message" => "Não foi possível carregar o produto selecionado. Por favor, tente novamente mais tarde."
+            ]);
+        }
+    }
 
     public function insertProduct($nome, $valor, $categoria)
     {
@@ -77,3 +89,4 @@ class ProdutoController
         }
     }
 }
+

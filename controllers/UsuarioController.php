@@ -18,6 +18,11 @@ class UsuarioController
            echo json_encode($result);
     }
 
+    public function UserbyId($id)
+    {
+           $result = $this->usuario->getUserById($id);
+           echo json_encode($result);
+    }
 
     public function criarUsuario($nome, $email, $password, $cpf, $endereco)
     {
